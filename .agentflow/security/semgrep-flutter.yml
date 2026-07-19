@@ -1,0 +1,84 @@
+# Reglas Semgrep custom para Dart/Flutter, que corre el Guardian junto con
+# los packs del registro (p/owasp-top-ten, p/secrets).
+#
+#   semgrep --config p/owasp-top-ten --config p/secrets --config .agentflow/security/semgrep-flutter.yml
+#
+# Modo generic (pattern-regex) para no depender del parser de Dart de Semgrep.
+# Las comillas en los regex van como \x22 (") y \x27 (') para evitar problemas de YAML.
+rules:
+  - id: dart-insecure-http-url
+    languages: [generic]
+    severity: WARNING
+    message: >
+      URL http:// sin TLS. Usa https:// (ATS en iOS/macOS lo exige; web/Android
+      lo esperan). Excepcion: localhost en desarrollo.
+    paths:
+      include: ["*.dart"]
+    patterns:
+      - pattern-regex: '[\x22\x27]http://(?!localhost|127\.0\.0\.1)'
+
+  - id: dart-disable-tls-verification
+    languages: [generic]
+    severity: ERROR
+    message: >
+      No deshabilites la verificacion de certificados TLS (badCertificateCallback
+      devolviendo true). Habilita ataques MITM.
+    paths:
+      include: ["*.dart"]
+    patterns:
+      - pattern-regex: 'badCertificateCallback\s*[:=][^;]*=>\s*true'
+
+  - id: dart-insecure-random-for-tokens
+    languages: [generic]
+    severity: WARNING
+    message: >
+      Random() no es criptograficamente seguro. Para tokens/nonces/IDs de
+      seguridad usa Random.secure().
+    paths:
+      include: ["*.dart"]
+    patterns:
+      - pattern-regex: '\bRandom\(\)'
+
+  - id: dart-sql-string-interpolation
+    languages: [generic]
+    severity: ERROR
+    message: >
+      Posible SQL injection: interpolacion de strings en rawQuery/rawExecute. Usa
+      argumentos parametrizados (whereArgs / '?').
+    paths:
+      include: ["*.dart"]
+    patterns:
+      - pattern-regex: '(rawQuery|rawExecute|rawInsert|rawUpdate|rawDelete)\([^)]*\$'
+
+  - id: dart-webview-js-enabled-unrestricted
+    languages: [generic]
+    severity: WARNING
+    message: >
+      JavaScript sin restriccion en WebView. Verifica que solo cargue contenido
+      confiable; deshabilitalo si no se necesita (superficie de ataque web/movil).
+    paths:
+      include: ["*.dart"]
+    patterns:
+      - pattern-regex: 'JavaScriptMode\.unrestricted'
+
+  - id: dart-hardcoded-secret
+    languages: [generic]
+    severity: ERROR
+    message: >
+      Posible secreto hardcodeado. Los secretos NO van en el codigo (y menos en el
+      bundle web, que es publico). Usa --dart-define / secure storage / backend.
+    paths:
+      include: ["*.dart"]
+    patterns:
+      - pattern-regex: '(?i)(api[_-]?key|secret|passwd|password|token|client[_-]?secret)\s*[:=]\s*[\x22\x27][A-Za-z0-9_\-]{16,}[\x22\x27]'
+
+  - id: dart-secure-storage-on-web
+    languages: [generic]
+    severity: WARNING
+    message: >
+      flutter_secure_storage en web NO usa enclave seguro (es storage del
+      navegador). Para tokens en web prefiere cookies httpOnly o memoria.
+    paths:
+      include: ["*.dart"]
+    patterns:
+      - pattern-regex: 'FlutterSecureStorage\('

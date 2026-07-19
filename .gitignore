@@ -1,0 +1,19 @@
+# Dependencias / build
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Runtime / basura del SO
+.DS_Store
+*.log
+.agentflow/runs/
+
+# Limpieza temporal generada por la sesión
+_to_delete/
+
+# Código iOS fuente (spec de paridad). Quita esta línea si quieres versionarlo aquí.
+legacy/
+
+# Secretos
+.env
+.env.*

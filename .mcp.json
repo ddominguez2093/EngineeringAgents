@@ -1,0 +1,9 @@
+{
+  "//": "MCP del Analyst para leer/comentar Jira via Atlassian Rovo. El SDK lo carga porque el orquestador usa settingSources:['project']. Autentica una vez con: npx mcp-remote https://mcp.atlassian.com/v1/sse (abre OAuth en el navegador).",
+  "mcpServers": {
+    "Atlassian_Rovo": {
+      "type": "sse",
+      "url": "https://mcp.atlassian.com/v1/sse"
+    }
+  }
+}

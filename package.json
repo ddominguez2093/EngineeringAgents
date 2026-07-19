@@ -1,0 +1,30 @@
+{
+  "name": "engineering-agentic-flow",
+  "version": "0.1.0",
+  "description": "Un equipo de ingenieria como agentes especializados sobre el Claude Agent SDK: Analyst -> Architect -> Coder -> Tester -> Reviewer -> Guardian, con Librarian y gates humanos.",
+  "type": "module",
+  "bin": {
+    "agentflow": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "init": "tsx src/index.ts init",
+    "doctor": "tsx src/index.ts doctor",
+    "scan": "tsx src/index.ts scan",
+    "start": "tsx src/index.ts run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.215",
+    "yaml": "^2.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.1",
+    "tsx": "^4.23.1",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

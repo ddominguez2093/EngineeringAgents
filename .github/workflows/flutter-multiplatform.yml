@@ -1,0 +1,65 @@
+# CI multiplataforma para la migracion Flutter (iOS/Android/macOS/Web).
+# Un cambio NO esta "verde" hasta que compila en las 4 plataformas y pasan las
+# pruebas (incluidos los golden tests de paridad). El Guardian corre en paralelo.
+name: flutter-multiplatform
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  analyze-test:
+    name: Analyze + Test (paridad)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test --coverage   # incluye golden tests de paridad visual
+
+  guardian-security:
+    name: Guardian (SAST/OWASP)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Semgrep (OWASP + Dart/Flutter)
+        run: |
+          pipx install semgrep
+          semgrep --error \
+            --config p/owasp-top-ten \
+            --config p/secrets \
+            --config .agentflow/security/semgrep-flutter.yml
+      - name: gitleaks (secretos)
+        uses: gitleaks/gitleaks-action@v2
+
+  build:
+    name: Build ${{ matrix.target }}
+    needs: [analyze-test]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: web
+            os: ubuntu-latest
+            cmd: flutter build web --release
+          - target: android
+            os: ubuntu-latest
+            cmd: flutter build apk --debug
+          - target: ios
+            os: macos-latest
+            cmd: flutter build ios --no-codesign --debug
+          - target: macos
+            os: macos-latest
+            cmd: flutter build macos --debug
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+      - run: ${{ matrix.cmd }}

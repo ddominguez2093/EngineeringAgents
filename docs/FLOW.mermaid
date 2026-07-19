@@ -1,0 +1,31 @@
+flowchart TD
+    JIRA([Jira Ticket]) --> ANALYST[Analyst<br/>refina el ticket]
+    ANALYST -->|gaps de negocio| ASKHUMAN{{Comenta Jira<br/>espera humano}}
+    ASKHUMAN -.respuesta.-> ANALYST
+    ANALYST -->|refined-ticket.yaml| ARCH[Architect<br/>diseno + subtasks + riesgo]
+
+    ARCH -->|tech-design.md + subtasks.yaml| GATEA{{GATE A<br/>Aprobacion humana de diseno}}
+    GATEA -->|low-risk: fast lane| CODER
+    GATEA -->|aprobado| CODER
+
+    subgraph LOOP1[Loop rojo-verde  max 3]
+        CODER[Coder<br/>ponytail + skill del stack] -->|diff| TESTER[Dev Tester<br/>escribe y CORRE pruebas]
+        TESTER -->|fail + output| CODER
+    end
+
+    TESTER -->|pruebas verdes| REVIEWER[Architect Reviewer]
+    REVIEWER -->|changes_requested max 2| CODER
+    REVIEWER -->|approved: crea draft PR| GUARDIAN[Guardian<br/>Semgrep/Trivy/gitleaks + LLM]
+
+    GUARDIAN -->|fail critico max 2| CODER
+    GUARDIAN -->|pass| GATEB{{GATE B<br/>Merge humano}}
+    GATEB --> DONE([Merged])
+
+    LIB[Librarian<br/>PROJECT_CONTEXT.md] -.contexto.-> ANALYST
+    LIB -.contexto.-> ARCH
+    LIB -.contexto.-> CODER
+    LIB -.contexto.-> REVIEWER
+    LIB -.contexto.-> GUARDIAN
+
+    HOOKS[[PreToolUse hooks<br/>guardrails de seguridad]] -.protege.-> CODER
+    HOOKS -.protege.-> GUARDIAN

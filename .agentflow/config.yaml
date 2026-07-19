@@ -1,0 +1,51 @@
+# Configuracion de EngineeringAgenticFlow para la migracion iOS(VIPER) -> Flutter.
+# stacks: flutter-dart (destino, escribe) + swift-ios (fuente, lee para paridad).
+
+stacks:
+  - flutter-dart
+  - swift-ios
+
+models:
+  analyst: opus
+  architect: opus
+  librarian: sonnet
+  coder: sonnet          # opus para modulos high-risk (auth, paywall/StoreKit)
+  coderHighRisk: opus
+  tester: sonnet
+  reviewer: opus
+  guardian: opus
+
+loopBudgets:
+  redGreen: 3
+  review: 2
+  remediation: 2
+
+# En migracion la paridad importa en todo; arranca con Gate A en los 3 niveles.
+gateARequiredFor:
+  - low
+  - medium
+  - high
+
+# Comandos Flutter reales. El build de humo por plataforma corre en CI.
+commands:
+  test: "flutter test"                    # incluye golden tests de paridad visual
+  lint: "flutter analyze"
+  build: "flutter build web && flutter build apk --debug && flutter build macos --debug"
+
+security:
+  scanners:
+    - semgrep      # reglas OWASP + Dart
+    - trivy        # dependencias pub/gradle/pods
+    - gitleaks     # secretos (ojo: bundle web)
+    - npm-audit    # si hay tooling web/node
+  blockingSeverity: high
+
+# --- Especifico de esta migracion ---
+migration:
+  # Carpeta con el codigo iOS fuente (read-only), que el Librarian indexa como spec.
+  legacyPath: "legacy/"
+  sourceArchitecture: "viper"
+  targets: [ios, android, macos, web]
+  webParity: "full"     # web critica; ver gaps en docs/CAPABILITY_MATRIX.md
+  # "Done" del Tester = paridad, no solo pruebas verdes (ver playbook §4).
+  parityDimensions: [logic, visual-golden, flow-e2e, manual-checklist]
