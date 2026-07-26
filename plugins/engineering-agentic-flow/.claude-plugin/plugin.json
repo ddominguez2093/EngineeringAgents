@@ -1,0 +1,12 @@
+{
+  "name": "engineering-agentic-flow",
+  "displayName": "Engineering Agentic Flow",
+  "description": "Un equipo de ingenieria como subagentes: Analyst -> Architect -> Coder -> Tester -> Architect Reviewer -> Guardian, con Librarian, gates humanos, skills por lenguaje + ui-ux-pro-max, y hooks de seguridad. Orquestado con /eng-flow.",
+  "author": {
+    "name": "Daniel Dominguez",
+    "email": "ddominguezchavez@gmail.com"
+  },
+  "repository": "https://github.com/ddominguez2093/EngineeringAgents",
+  "license": "MIT",
+  "keywords": ["agents", "subagents", "code-review", "security", "flutter", "migration", "viper"]
+}

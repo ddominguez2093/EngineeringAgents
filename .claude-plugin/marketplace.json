@@ -1,0 +1,14 @@
+{
+  "name": "bitstream-agents",
+  "owner": {
+    "name": "Daniel Dominguez",
+    "email": "ddominguezchavez@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "engineering-agentic-flow",
+      "source": "./plugins/engineering-agentic-flow",
+      "description": "Equipo de ingenieria como subagentes de Claude Code: Analyst, Architect, Librarian, Coder (ponytail), Dev Tester, Architect Reviewer y Guardian. Con el comando /eng-flow, skills por lenguaje + ui-ux-pro-max, y hooks de seguridad."
+    }
+  ]
+}
