@@ -92,7 +92,7 @@ export class Orchestrator {
     this.state.stage = "design";
     const design = await this.run1(
       "architect",
-      `Con este RefinedTicket, propon TechDesign + Subtasks en YAML.\n\n${refined}`,
+      `Con este RefinedTicket, propon TechDesign + Subtasks en YAML.\n\n${clip(refined)}`,
       "medium",
     );
     this.audit("02-tech-design.yaml", design);
@@ -115,14 +115,14 @@ export class Orchestrator {
     do {
       diff = await this.run1(
         "coder",
-        `Implementa la subtask respetando el diseno.\n\n${design}\n\nFeedback previo de pruebas (si hay):\n${testReport}`,
+        `Implementa la subtask respetando el diseno. Al terminar devuelve SOLO un CodeChange breve (rama, archivos tocados, changelog corto) — NO pegues el diff completo, ya vive en git.\n\n${clip(design)}\n\nFeedback previo de pruebas (si hay):\n${clip(testReport, 3000)}`,
         this.state.risk,
       );
       this.audit(`03-code-change-${this.state.loopCounters["redGreen"] ?? 0}.txt`, diff);
 
       testReport = await this.run1(
         "tester",
-        `Escribe y CORRE pruebas para este diff. Devuelve TestReport en YAML.\n\n${diff}`,
+        `Escribe y CORRE pruebas para el cambio en la rama actual. Lee el diff tu mismo con git diff (no se te pega aqui). Resumen del cambio:\n${clip(diff, 3000)}\n\nDevuelve TestReport en YAML, con el output de la corrida RESUMIDO (fallos completos, exitos en una linea).`,
         this.state.risk,
       );
       this.audit(`04-test-report-${this.state.loopCounters["redGreen"] ?? 0}.yaml`, testReport);
@@ -142,14 +142,14 @@ export class Orchestrator {
     do {
       review = await this.run1(
         "architect-reviewer",
-        `Revisa este cambio contra el diseno. Si apruebas, crea el draft PR. Devuelve ReviewVerdict.\n\nDISENO:\n${design}\n\nDIFF:\n${diff}\n\nPRUEBAS:\n${testReport}`,
+        `Revisa el cambio de la rama actual contra el diseno: corre git diff tu mismo (no se te pega el diff). Si apruebas, crea el draft PR. Devuelve ReviewVerdict conciso.\n\nDISENO:\n${clip(design)}\n\nRESUMEN DEL CAMBIO:\n${clip(diff, 3000)}\n\nPRUEBAS:\n${clip(testReport, 3000)}`,
         this.state.risk,
       );
       this.audit(`05-review-verdict-${this.state.loopCounters["review"] ?? 0}.yaml`, review);
       if (/verdict:\s*approved/i.test(review)) break;
       diff = await this.run1(
         "coder",
-        `El reviewer pidio cambios. Aplicalos.\n\n${review}`,
+        `El reviewer pidio cambios. Aplicalos y devuelve un changelog breve.\n\n${clip(review, 4000)}`,
         this.state.risk,
       );
     } while (this.budget("review", cfg.loopBudgets.review));
@@ -160,14 +160,14 @@ export class Orchestrator {
     do {
       security = await this.run1(
         "guardian",
-        `Analiza seguridad del PR. Corre los escaneres (${cfg.security.scanners.join(", ")}) y devuelve SecurityVerdict.\n\nDIFF:\n${diff}`,
+        `Analiza seguridad del PR de la rama actual. Corre los escaneres (${cfg.security.scanners.join(", ")}) sobre el arbol de trabajo y revisa git diff tu mismo (no se te pega). Devuelve SecurityVerdict con evidencia RESUMIDA (solo hallazgos, no el output completo de las herramientas limpias).\n\nRESUMEN DEL CAMBIO:\n${clip(diff, 3000)}`,
         this.state.risk,
       );
       this.audit(`06-security-verdict-${this.state.loopCounters["remediation"] ?? 0}.yaml`, security);
       if (/verdict:\s*pass/i.test(security)) break;
       diff = await this.run1(
         "coder",
-        `El Guardian encontro vulnerabilidades. Remediar sin romper las pruebas.\n\n${security}`,
+        `El Guardian encontro vulnerabilidades. Remediar sin romper las pruebas; devuelve changelog breve.\n\n${clip(security, 4000)}`,
         this.state.risk,
       );
     } while (this.budget("remediation", cfg.loopBudgets.remediation));
@@ -190,4 +190,17 @@ export class Orchestrator {
 function extractRisk(design: string): RiskLevel {
   const m = design.match(/risk:\s*(low|medium|high)/i);
   return (m?.[1]?.toLowerCase() as RiskLevel) ?? "medium";
+}
+
+/**
+ * Recorta un artefacto antes de embeberlo en un prompt. Los artefactos completos
+ * viven en .agentflow/runs/ (auditoria); a los prompts solo va lo esencial.
+ * Sin esto, cada iteracion de loop re-paga el artefacto entero.
+ */
+function clip(text: string, maxChars = 6000): string {
+  if (text.length <= maxChars) return text;
+  return (
+    text.slice(0, maxChars) +
+    `\n\n[...recortado por presupuesto de tokens: ${text.length - maxChars} chars mas en .agentflow/runs/]`
+  );
 }

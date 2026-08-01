@@ -44,6 +44,7 @@ export function buildAgents(
       // Read-only sobre el codigo + MCP de Atlassian/Rovo para leer y comentar Jira.
       tools: [...READ_ONLY],
       mcpServers: ["Atlassian_Rovo"],
+      maxTurns: 15,
       prompt: `Eres un Analista de Requerimientos senior. Tu unico objetivo es dejar el
 ticket LISTO para que un arquitecto pueda proponer una solucion sin adivinar.
 
@@ -69,7 +70,8 @@ RefinedTicket en YAML, sin prosa adicional.`,
       model: cfg.models.architect,
       tools: [...READ_ONLY],
       mcpServers: ["Atlassian_Rovo"], // para crear subtasks en Jira
-      skills: ["ui-ux-pro-max"], // sistema de diseno / tokens para el ADR de UI
+      // ui-ux-pro-max NO se precarga (47KB): invocalo via Skill solo si el ticket es de UI.
+      maxTurns: 15,
       prompt: `Eres un Arquitecto de Software senior. Recibes un RefinedTicket y el
 PROJECT_CONTEXT.md del Librarian (arquitectura, patrones y convenciones vigentes).
 
@@ -92,6 +94,7 @@ Entrega TechDesign (ADR) + la lista de Subtasks en YAML. No escribas codigo.`,
         "Construye y mantiene el cerebro del proyecto: arquitectura, patrones, convenciones, stack y estilo de UI/UX.",
       model: cfg.models.librarian,
       tools: [...READ_ONLY, "Bash"], // Bash para arbol de archivos / detectar package managers
+      maxTurns: 40,
       prompt: `Eres el Bibliotecario del proyecto. Construyes un modelo persistente de
 "como se trabaja aqui" que todos los demas agentes leeran.
 
@@ -114,8 +117,10 @@ Se conciso y factual: esto es referencia, no ensayo.`,
         "Implementa una subtask con el minimo codigo necesario (filosofia ponytail), reusando lo que ya existe.",
       model: coderModel,
       tools: ["Read", "Write", "Edit", "Grep", "Glob", "Bash"],
-      // ponytail SIEMPRE + UI/UX intelligence + los skill packs del stack detectado.
-      skills: ["ponytail", "ui-ux-pro-max", ...stackSkills],
+      // ponytail (pequeno) + packs del stack. ui-ux-pro-max NO se precarga (47KB):
+      // el coder lo invoca via Skill solo cuando la subtask es de UI.
+      skills: ["ponytail", ...stackSkills],
+      maxTurns: 50,
       prompt: `Eres un desarrollador senior que odia el codigo de mas. Implementas UNA
 subtask a la vez, trabajando en la rama feature/<ticket> (nunca en main).
 
@@ -143,6 +148,7 @@ fuera a proposito.`,
       model: cfg.models.tester,
       tools: ["Read", "Write", "Edit", "Grep", "Bash"], // Bash para correr el framework de pruebas
       skills: [...stackSkills],
+      maxTurns: 30,
       prompt: `Eres un ingeniero de pruebas. Recibes el diff del Coder y el plan de
 pruebas esperado del TechDesign.
 
@@ -162,7 +168,8 @@ rojo-verde. Entrega TestReport en YAML.`,
         "Revisa que la implementacion respete el diseno aprobado y las convenciones. Si aprueba, crea el draft PR.",
       model: cfg.models.reviewer,
       tools: [...READ_ONLY, "Bash"], // Bash/gh para crear el draft PR; sin Write/Edit sobre el codigo
-      skills: ["ponytail", "ui-ux-pro-max"], // sobre-ingenieria + cumplimiento UI/UX y adaptive
+      skills: ["ponytail"], // ui-ux-pro-max solo bajo demanda via Skill (es pesado)
+      maxTurns: 20,
       prompt: `Eres un Arquitecto Revisor. Verificas que el diff del Coder respete el
 TechDesign aprobado y las convenciones del PROJECT_CONTEXT.md, que no introduzca
 deuda arquitectonica, y que las pruebas del Tester sean significativas.
@@ -183,6 +190,7 @@ el DRAFT PR con gh y pon su URL en el veredicto. No modificas codigo tu mismo.`,
       // Bash para CORRER los escaneres. Sin Write/Edit: dictamina, no arregla.
       tools: [...READ_ONLY, "Bash"],
       disallowedTools: ["Write", "Edit"],
+      maxTurns: 25,
       prompt: `Eres el Guardian de seguridad. Tu trabajo es que jamas se mergee una
 vulnerabilidad conocida.
 

@@ -6,6 +6,16 @@ argument-hint: <TICKET-ID>
 Orquesta el equipo de ingenieria para el ticket **$1** (Jira). Delega en los
 subagentes en este orden y respeta los gates. NO te saltes etapas.
 
+## Disciplina de tokens (aplica a TODO el flujo)
+
+- Al delegar, pasa a cada subagente SOLO el artefacto de la etapa previa
+  (resumido si es largo), nunca el historial completo ni archivos enteros.
+- Pide a cada subagente que devuelva YAML conciso; los diffs viven en git, no en
+  los mensajes: reviewer/guardian corren `git diff` ellos mismos.
+- No repitas en tu propio mensaje lo que el subagente ya reporto: una linea de
+  estado por etapa basta.
+- Para tickets pequenos y de bajo riesgo, sugiere usar `/eng-flow-lite` en su lugar.
+
 ## 1. Analyst
 Invoca al subagente `analyst` para refinar el ticket **$1**. Si devuelve
 `definitionOfReady: false` (hay openQuestions bloqueantes), DETENTE: reporta las

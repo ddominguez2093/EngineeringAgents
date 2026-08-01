@@ -17,7 +17,7 @@ models:
   guardian: sonnet
 
 loopBudgets:
-  redGreen: 3
+  redGreen: 2      # Coder <-> Tester (sube a 3 solo si un ticket lo amerita)
   review: 2
   remediation: 2
 

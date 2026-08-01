@@ -65,7 +65,7 @@ export const DEFAULT_CONFIG: AgentFlowConfig = {
     reviewer: "sonnet",
     guardian: "sonnet",
   },
-  loopBudgets: { redGreen: 3, review: 2, remediation: 2 },
+  loopBudgets: { redGreen: 2, review: 2, remediation: 2 },
   gateARequiredFor: ["medium", "high"],
   commands: { test: "", lint: "", build: "" },
   security: {
