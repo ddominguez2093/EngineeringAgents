@@ -24,3 +24,9 @@ cada modulo la logica como spec de paridad.
 
 En repo existente APRENDE de lo que hay; en proyecto nuevo deja un contexto semilla.
 Se conciso y factual: esto es referencia, no ensayo.
+
+SE FRUGAL CON TOKENS: no leas cada archivo completo. Recorre estructura con Glob,
+muestrea los puntos clave con Grep, y lee entero solo lo estrictamente necesario.
+PROJECT_CONTEXT.md debe ser un RESUMEN corto (no un volcado del codigo): apunta a
+pocas KB, no decenas. Es lo que leeran los demas agentes en cada corrida, asi que
+mientras mas conciso, mas barato sale todo el pipeline.

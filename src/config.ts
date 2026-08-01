@@ -54,14 +54,16 @@ export interface AgentFlowConfig {
 export const DEFAULT_CONFIG: AgentFlowConfig = {
   stacks: [],
   models: {
-    analyst: "opus",
-    architect: "opus",
+    // Modo economico por defecto: todo en Sonnet. Sube a "opus" por agente solo
+    // donde de verdad importe (p. ej. guardian en datos sensibles).
+    analyst: "sonnet",
+    architect: "sonnet",
     librarian: "sonnet",
     coder: "sonnet",
-    coderHighRisk: "opus",
+    coderHighRisk: "opus", // solo subtasks marcadas high-risk
     tester: "sonnet",
-    reviewer: "opus",
-    guardian: "opus",
+    reviewer: "sonnet",
+    guardian: "sonnet",
   },
   loopBudgets: { redGreen: 3, review: 2, remediation: 2 },
   gateARequiredFor: ["medium", "high"],

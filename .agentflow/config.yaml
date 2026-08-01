@@ -6,14 +6,15 @@ stacks:
   - swift-ios
 
 models:
-  analyst: opus
-  architect: opus
+  # Modo economico: todo Sonnet. Sube a opus por agente solo donde importe.
+  analyst: sonnet
+  architect: sonnet
   librarian: sonnet
-  coder: sonnet          # opus para modulos high-risk (auth, paywall/StoreKit)
+  coder: sonnet          # opus solo para subtasks high-risk (auth, paywall/StoreKit)
   coderHighRisk: opus
   tester: sonnet
-  reviewer: opus
-  guardian: opus
+  reviewer: sonnet
+  guardian: sonnet
 
 loopBudgets:
   redGreen: 3

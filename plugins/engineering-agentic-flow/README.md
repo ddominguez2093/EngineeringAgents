@@ -58,6 +58,28 @@ Los subagentes también se invocan solos cuando la tarea coincide con su
 - Escáneres del `guardian`: `semgrep`, `trivy`, `gitleaks` en el PATH.
 - Los skills de lenguaje esperan las herramientas del stack (p. ej. `flutter`).
 
+## Costo y modo económico
+
+El pipeline puede consumir muchos tokens. Por defecto ya viene en **modo económico**:
+todos los subagentes usan **Sonnet** (no Opus) y los que leen contexto tienen la
+instrucción de ser frugales (no abrir archivos enormes; apoyarse en
+`PROJECT_CONTEXT.md`). Recomendaciones para no quemar tu cuota:
+
+- **Sesión en Sonnet**: corre `/model sonnet` antes de usar el flujo. El loop
+  principal que orquesta también cuesta.
+- **Adelgaza tu contexto**: `CLAUDE.md` de 15+ KB y `context.md` de 45 KB se pagan en
+  cada turno. Deja en `CLAUDE.md` solo lo esencial y mueve el detalle a archivos que
+  se lean bajo demanda. Corre `/eng-context` para tener un `PROJECT_CONTEXT.md` corto
+  que los agentes usen en vez de re-leer todo.
+- **Ve por etapas, no todo `/eng-flow` de golpe**: prueba primero solo el `analyst`
+  (`usa el subagente analyst para el ticket DOKTA-123`). El `/eng-flow` completo
+  encadena 7 agentes + loops (hasta 3 rojo-verde), y eso multiplica el gasto.
+- **Sube a Opus solo donde importe**: si quieres máxima calidad en una etapa (p. ej.
+  el `guardian` en un ticket de datos sensibles), cambia `model: sonnet` a
+  `model: opus` en ese `agents/<agente>.md`. No lo pongas en todos.
+- **Un ticket a la vez**: el `analyst` debe leer el ticket + un resumen, no el
+  codebase. Si ves que abre archivos grandes, recórtale el alcance en su prompt.
+
 ## Relación con el orquestador Agent SDK
 
 Este repo tiene dos formas del mismo equipo: este **plugin** (interactivo, en Claude
