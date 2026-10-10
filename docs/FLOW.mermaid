@@ -1,31 +1,22 @@
 flowchart TD
-    JIRA([Jira Ticket]) --> ANALYST[Analyst<br/>refina el ticket]
-    ANALYST -->|gaps de negocio| ASKHUMAN{{Comenta Jira<br/>espera humano}}
-    ASKHUMAN -.respuesta.-> ANALYST
-    ANALYST -->|refined-ticket.yaml| ARCH[Architect<br/>diseno + subtasks + riesgo]
+    A([/eng-flow tarea]) --> T{Triage}
+    T -->|rápido| Q[Sesión principal<br/>hace el cambio]
+    Q --> QV[verify.sh --quick] --> PR
 
-    ARCH -->|tech-design.md + subtasks.yaml| GATEA{{GATE A<br/>Aprobacion humana de diseno}}
-    GATEA -->|low-risk: fast lane| CODER
-    GATEA -->|aprobado| CODER
-
-    subgraph LOOP1[Loop rojo-verde  max 3]
-        CODER[Coder<br/>ponytail + skill del stack] -->|diff| TESTER[Dev Tester<br/>escribe y CORRE pruebas]
-        TESTER -->|fail + output| CODER
-    end
-
-    TESTER -->|pruebas verdes| REVIEWER[Architect Reviewer]
-    REVIEWER -->|changes_requested max 2| CODER
-    REVIEWER -->|approved: crea draft PR| GUARDIAN[Guardian<br/>Semgrep/Trivy/gitleaks + LLM]
-
-    GUARDIAN -->|fail critico max 2| CODER
-    GUARDIAN -->|pass| GATEB{{GATE B<br/>Merge humano}}
-    GATEB --> DONE([Merged])
-
-    LIB[Librarian<br/>PROJECT_CONTEXT.md] -.contexto.-> ANALYST
-    LIB -.contexto.-> ARCH
-    LIB -.contexto.-> CODER
-    LIB -.contexto.-> REVIEWER
-    LIB -.contexto.-> GUARDIAN
-
-    HOOKS[[PreToolUse hooks<br/>guardrails de seguridad]] -.protege.-> CODER
-    HOOKS -.protege.-> GUARDIAN
+    T -->|estándar| P[planner · sonnet]
+    T -->|profundo| PO[planner · opus]
+    PO --> G{{Gate humano:<br/>aprobar diseño}}
+    G --> C
+    P -->|LISTO: no| STOP([Detenerse:<br/>preguntas abiertas])
+    P -->|riesgo alto| G
+    P --> C[coder · sonnet<br/>una subtask a la vez<br/>opus si es difícil]
+    C --> V[verifier · haiku<br/>verify.sh]
+    V -->|falla, máx. 2| C
+    V --> R[reviewer<br/>sonnet · opus en profundo]
+    R -->|cambios, máx. 2| C
+    R -->|estándar| S[verifier · haiku<br/>scan.sh]
+    R -->|profundo| GU[guardian · opus<br/>scan.sh + razonamiento]
+    S -->|hallazgo alto| C
+    GU -->|falla, máx. 2| C
+    S --> PR
+    GU --> PR([PR en borrador<br/>merge humano])

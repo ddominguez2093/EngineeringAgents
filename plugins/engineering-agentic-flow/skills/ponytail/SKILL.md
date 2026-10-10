@@ -1,34 +1,28 @@
 ---
 name: ponytail
-description: Filosofia de minimalismo para el Coder. La "escalera de decision" que se consulta ANTES de escribir codigo, para preferir lo que ya existe, lo nativo y lo minimo sobre el codigo custom. Inspirada en DietrichGebert/ponytail.
+description: Escalera de decisión para escribir el mínimo código necesario y para auditar sobre-ingeniería en un diff. Úsala antes de implementar y al revisar.
 ---
 
-# ponytail — Minimalismo del desarrollador senior perezoso
+# ponytail — perezoso con la solución, jamás con leer
 
-"Perezoso con la solucion, jamas con leer." Entiende el problema y el codebase a
-fondo; luego escribe lo menos posible.
+Entiende el problema y el código a fondo; luego escribe lo menos posible.
 
-## La escalera de decision (consultar en orden, ANTES de codear)
+## La escalera (en orden, antes de escribir)
+1. **¿Necesita existir?** No construyas para un futuro imaginario.
+2. **¿Ya existe en el repo?** Reusa o extiende antes de duplicar.
+3. **¿Está en la librería estándar o en el framework?**
+4. **¿Lo da la plataforma?** (navegador, iOS, Android, Spring).
+5. **¿Lo hace una dependencia ya instalada?** No agregues otra.
+6. **Solo entonces**: la implementación mínima que cumple el plan.
 
-1. **Esto necesita existir?** (YAGNI) — no construyas para un futuro imaginario.
-2. **Ya existe en el codebase?** — reusa antes de duplicar.
-3. **Esta en la stdlib?** — prefiere la libreria estandar.
-4. **Es una feature nativa de la plataforma?** — APIs del navegador, del SO, del framework.
-5. **Ya hay una dependencia instalada que lo hace?** — no agregues otra.
-6. **Se puede en una linea?** — la brevedad es claridad.
-7. **Solo entonces**: la implementacion minima necesaria.
+## Lo que nunca se poda
+Validación en fronteras de confianza, manejo de errores, autorización,
+accesibilidad y las pruebas del comportamiento nuevo. Minimalismo no es fragilidad.
 
-## Lo que NUNCA se poda
+## Como revisión
+Señala para borrar: abstracciones con un solo uso, parámetros y opciones que nadie
+pasa, capas que solo reenvían, código "por si acaso", dependencias nuevas para algo
+de pocas líneas, y comentarios que repiten el código.
 
-Validacion en fronteras de confianza, manejo de errores, seguridad y
-accesibilidad no entran en la poda. Minimalismo no es fragilidad.
-
-## Uso como review
-
-`/ponytail-review`: audita un diff buscando sobre-ingenieria y devuelve
-recomendaciones de borrado. Lo usa tambien el Architect Reviewer.
-
-## Senal de exito
-
-Menos lineas, menos dependencias, menos superficie de bug — misma funcionalidad,
-misma robustez.
+## Señal de éxito
+Menos líneas, menos dependencias y menos superficie de bug, con la misma funcionalidad y la misma robustez.

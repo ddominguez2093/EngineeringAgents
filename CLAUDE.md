@@ -1,31 +1,23 @@
-# CLAUDE.md — contexto que TODOS los agentes cargan
+# CLAUDE.md
 
-> Cargado por el SDK via `settingSources: ['project']`. Es el punto de entrada al
-> "cerebro del proyecto"; el detalle vive en `.agentflow/context/` (lo genera el
-> Librarian con `agentflow scan`).
+Este repo es un plugin de Claude Code: `plugins/engineering-agentic-flow/`. No hay
+código de aplicación ni build; el producto son los prompts, los skills y dos scripts.
 
-## Qué es este proyecto
+## Estructura
+- `agents/` — seis subagentes. El campo `model` de cada uno es su modelo por defecto;
+  `/eng-flow` lo sube a opus en el carril profundo.
+- `commands/` — `/eng-flow` (orquestación) y `/eng-context` (preparar un repo).
+- `skills/` — un skill por stack (`react-web`, `flutter`, `swift-ios`,
+  `android-compose`, `spring-boot`) y `ponytail`.
+- `scripts/verify.sh`, `scripts/scan.sh` — verificación y escáneres deterministas.
+- `hooks/security-check.sh` — guardrail PreToolUse.
 
-Migración de una app iOS (arquitectura **VIPER**) a **Flutter**, desplegable en
-**iOS, Android, macOS y Web**. Web es **crítica con paridad total**. UI **adaptive
-por plataforma** (Cupertino en iOS, Material en Android, escritorio en macOS/web).
+## Reglas al editar
+- Cada línea de un agente, comando o skill se paga en cada corrida. Agrega solo lo
+  que cambia el comportamiento del modelo; no expliques lo que ya sabe del stack.
+- La `description` de un skill se carga siempre; el cuerpo solo al invocarlo. Mantén las descripciones en una o dos líneas.
+- Una sola fuente por cosa: no dupliques un prompt o skill en otra carpeta.
+- Los agentes se pasan rutas (`.agentflow/plans/<id>.md`, ramas), no contenido.
+- Tras tocar un script o el hook, pruébalo: `bash -n`, y `verify.sh --list --all` en un repo real.
 
-## Reglas para los agentes
-
-- El código fuente iOS vive en `legacy/` (read-only): es la **spec de paridad**.
-  Primero se migra la lógica (Interactor/Presenter → UseCase/Notifier) conservando
-  el comportamiento; luego se rehace la UI adaptive.
-- "Done" = **paridad**, no solo pruebas verdes (ver `docs/MIGRATION_PLAYBOOK.md` §4).
-- Antes de agregar una dependencia, revisa `docs/CAPABILITY_MATRIX.md`: verifica
-  soporte en las 4 plataformas (sobre todo Web) o marca el gap.
-- Nada de `dart:io` en código compartido con Web (usa imports condicionales).
-- Secretos: nunca en el código ni en el bundle web. En Web los tokens no van en
-  `flutter_secure_storage` (no es enclave) → cookie httpOnly o memoria.
-
-## Convenciones técnicas (del ADR de programa)
-
-- Estado: Riverpod · Routing: go_router (URLs para Web) · Modelos: freezed +
-  json_serializable · Red: dio · UI adaptive detrás de una capa de abstracción.
-- Comandos: `flutter analyze`, `flutter test`, builds por plataforma (ver CI).
-
-> Detalle completo de arquitectura, patrones, UI/UX y glosario: `.agentflow/context/`.
+Diseño y motivos: `docs/AGENT_STRATEGY.md`.
