@@ -8,7 +8,7 @@
     {
       "name": "engineering-agentic-flow",
       "source": "./plugins/engineering-agentic-flow",
-      "description": "Equipo de ingenieria como subagentes de Claude Code: Analyst, Architect, Librarian, Coder (ponytail), Dev Tester, Architect Reviewer y Guardian. Con el comando /eng-flow, skills por lenguaje + ui-ux-pro-max, y hooks de seguridad."
+      "description": "De un ticket a un PR en borrador: tres carriles por riesgo, modelo por etapa (haiku, sonnet, opus), verificación determinista y skills para React, Flutter, iOS, Android Compose y Spring Boot. Comandos /eng-flow y /eng-context."
     }
   ]
 }

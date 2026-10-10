@@ -1,19 +1,12 @@
-# Dependencias / build
-node_modules/
-dist/
-*.tsbuildinfo
-
-# Runtime / basura del SO
 .DS_Store
 *.log
-.agentflow/runs/
+__pycache__/
 
-# Limpieza temporal generada por la sesión
-_to_delete/
-
-# Código iOS fuente (spec de paridad). Quita esta línea si quieres versionarlo aquí.
-legacy/
+# Artefactos del flujo al usar el plugin sobre este mismo repo
+.agentflow/logs/
+.agentflow/plans/
 
 # Secretos
 .env
 .env.*
+!.env.example
