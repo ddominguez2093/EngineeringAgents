@@ -19,9 +19,9 @@ y las salidas largas, y conserva solo decisiones y veredictos.
 ## 0. Preparación
 - Si no existe `.agentflow/verify.sh` o `.agentflow/graph.sh`, cópialos:
   `mkdir -p .agentflow && cp -n "${CLAUDE_PLUGIN_ROOT}"/scripts/*.sh "${CLAUDE_PLUGIN_ROOT}"/security/semgrep-flutter.yml .agentflow/`
-- En los carriles estándar y profundo corre `.agentflow/graph.sh`: pone al día el
-  grafo de código si graphify está instalado (local, sin costo de tokens). Si dice
-  "no disponible", sigue igual.
+- Corre `.agentflow/graph.sh` en todos los carriles: pone al día el grafo de código
+  (local, sin costo de tokens; solo reextrae lo que cambió). **Es obligatorio:** si
+  termina con error, detente y muestra su salida. No sigas sin grafo.
 - Identifica la rama base (`main`, `master` o `develop`) y define `<id>`: el ID del
   ticket, o un slug corto de la descripción.
 
@@ -87,4 +87,4 @@ seguridad, los hallazgos menores pendientes y lo que quedó fuera de alcance.
 ## Cuándo detenerte
 Detente y reporta, sin insistir, cuando: el plan no está listo, un loop agotó sus
 vueltas, el guardian sigue en `falla`, o falta una herramienta que impide
-verificar. Di exactamente qué falló y qué necesitas para continuar.
+verificar, o `graph.sh` falla. Di exactamente qué falló y qué necesitas para continuar.

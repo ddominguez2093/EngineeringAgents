@@ -46,8 +46,9 @@ Si además está token-goat, se reparten papeles: token-goat lee fragmentos
 (`read archivo::Símbolo`, `outline`) y graphify responde relaciones. Dos sistemas
 sugiriendo lo mismo compiten y el agente termina ignorando a ambos.
 
-Los dos son opcionales y nunca bloquean: sin ellos se usa Grep. Orientan; el código
-se confirma leyendo el fragmento exacto.
+graphify es obligatorio: sin grafo el flujo se detiene, porque un agente sin mapa
+de dependencias planea y revisa a ciegas. token-goat es opcional; sin él se lee con
+Read acotado. Los dos orientan; el código se confirma leyendo el fragmento exacto.
 
 ## 5. Contra la alucinación: lo que se afirma, se vio
 - Un resultado vacío de un índice o un grafo no prueba que algo no exista: los

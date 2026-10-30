@@ -1,6 +1,6 @@
 {
   "name": "engineering-agentic-flow",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "displayName": "Engineering Agentic Flow",
   "description": "De un ticket a un PR en borrador con tres carriles por riesgo (rápido, estándar, profundo), modelo por etapa (haiku, sonnet, opus), verificación determinista y skills para React, Flutter, iOS, Android Compose y Spring Boot.",
   "author": {

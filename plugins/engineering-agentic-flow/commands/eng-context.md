@@ -11,10 +11,10 @@ Prepara este repositorio para `/eng-flow`.
 No sobrescribas `.agentflow/verify.conf` si ya existe. Agrega `.agentflow/logs/` al `.gitignore`.
 
 ## 2. Grafo de código
-Corre `.agentflow/graph.sh --global`. Construye `graphify-out/graph.json` con el AST
-del repo (local, sin LLM) y lo agrega al grafo global de todos tus repos. Si
-graphify no está instalado, avisa en el resumen final (`uv tool install graphifyy`)
-y continúa sin grafo.
+Corre `.agentflow/graph.sh --global --html`. Construye `graphify-out/graph.json` con
+el AST del repo (local, sin LLM), lo agrega al grafo global de todos tus repos y abre
+la vista en el navegador. **Es obligatorio:** si termina con error, muestra su
+salida (incluye cómo instalar graphify) y detente.
 
 ## 3. Inventario
 Invoca al subagente `scout` (que usará el grafo si existe) una vez por cada proyecto del repo (una app React, un
