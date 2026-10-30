@@ -20,7 +20,11 @@ mapa de un scout. Lee `.agentflow/context.md` si existe y el `CLAUDE.md` del pro
 3. **Ubica el código** que se toca y cómo se resuelve hoy algo parecido. Lee lo
    necesario para no planear a ciegas; no leas el repo entero. Si existe
    `graphify-out/graph.json`, corre `graphify affected "<Símbolo>"` sobre lo que vas
-   a cambiar y lista en la subtask lo que dependa de ello.
+   a cambiar y lista en la subtask lo que dependa de ello (un resultado vacío se
+   confirma con Grep). Para leer fragmentos usa `token-goat read <archivo>::<Símbolo>`
+   si está instalado.
+   Todo lo que el plan afirme del código (rutas, clases, métodos, comandos) lo
+   viste en esta sesión; lo que no pudiste confirmar va a PREGUNTAS, no a la Decisión.
 4. **Decide la solución más adecuada a este proyecto**, no la más elegante: respeta
    su arquitectura y patrones. En riesgo alto, anota la alternativa descartada y por qué.
 5. **Parte en subtasks** que se puedan implementar y verificar de forma independiente,

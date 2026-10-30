@@ -61,14 +61,24 @@ la sesión principal no mejora el resultado y encarece cada etapa.
 - Para tickets de Jira: el MCP de Atlassian que trae el plugin (pide OAuth la primera vez).
 - Escáneres: `brew install gitleaks semgrep trivy`. Si falta alguno, el flujo lo reporta como incompleto; no lo da por limpio.
 
-## Grafo de código (graphify, opcional)
+## Navegación del código: token-goat y graphify (opcionales)
+
+Los dos son opcionales y cada uno tiene un papel:
+
+| Herramienta | Para qué la usan los agentes |
+|---|---|
+| [token-goat](https://github.com/DFKHelper/token-goat) | **Leer**: `symbol`, `outline`, `read archivo::Clase.metodo`, `semantic`. Devuelve el fragmento, no el archivo. |
+| graphify | **Relaciones**: `affected` (impacto de un cambio) y `path` (cómo se conectan dos piezas), también entre repos. |
+
+No se usa `token-goat impact` para impacto: en pruebas omitió llamadores y una
+prueba existente que graphify sí encontró. Y ningún resultado vacío cuenta como
+"no existe": los agentes lo confirman con Grep.
+
+### graphify
 
 Con [graphify](https://github.com/Graphify-Labs/graphify) instalado, cada repo tiene un
 grafo de clases, funciones y sus relaciones, extraído del AST en local: sin LLM y
-sin costo de tokens. Los agentes lo consultan antes de abrir archivos:
-
-- `scout` responde dónde vive algo y quién lo llama con `graphify query`, `explain` y `path`.
-- `planner` y `reviewer` usan `graphify affected` para ver qué depende de lo que cambia.
+sin costo de tokens. `scout`, `planner` y `reviewer` lo usan para ver qué depende de lo que cambia.
 
 ```
 uv tool install graphifyy

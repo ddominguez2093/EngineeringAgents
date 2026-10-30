@@ -10,7 +10,7 @@ código de aplicación ni build; el producto son los prompts, los skills y dos s
 - `skills/` — un skill por stack (`react-web`, `flutter`, `swift-ios`,
   `android-compose`, `spring-boot`) y `ponytail`.
 - `scripts/verify.sh`, `scripts/scan.sh` — verificación y escáneres deterministas.
-- `scripts/graph.sh` — grafo de código con graphify (opcional). Cómo consultarlo vive solo en `agents/scout.md`.
+- `scripts/graph.sh` — grafo de código con graphify (opcional). Cómo consultar el grafo y token-goat vive solo en `agents/scout.md`.
 - `hooks/security-check.sh` — guardrail PreToolUse.
 
 ## Reglas al editar
