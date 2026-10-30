@@ -34,6 +34,31 @@ que imprime una línea por paso y solo en los fallos agrega la cola del log. El
 modelo ve los errores, no miles de líneas de salida limpia. Un paso omitido o un
 escáner ausente se reporta como incompleto; nunca cuenta como aprobado.
 
+## 4. Un mapa del código en lugar de leer archivos
+Buscar dónde vive algo y quién lo usa es la mayor parte de lo que lee un agente.
+graphify extrae del AST un grafo de símbolos y relaciones en un segundo, sin LLM.
+`graph.sh` lo pone al día antes de cada tarea (solo reextrae lo que cambió), y los
+agentes lo consultan con un tope de tokens antes de abrir archivos. También mejora
+la calidad: `graphify affected` muestra a planner y reviewer qué depende de lo que se
+cambia, que es donde aparecen las regresiones.
+
+Si además está token-goat, se reparten papeles: token-goat lee fragmentos
+(`read archivo::Símbolo`, `outline`) y graphify responde relaciones. Dos sistemas
+sugiriendo lo mismo compiten y el agente termina ignorando a ambos.
+
+Los dos son opcionales y nunca bloquean: sin ellos se usa Grep. Orientan; el código
+se confirma leyendo el fragmento exacto.
+
+## 5. Contra la alucinación: lo que se afirma, se vio
+- Un resultado vacío de un índice o un grafo no prueba que algo no exista: los
+  parsers fallan (Kotlin, Dart y Swift salen incompletos). Se confirma con Grep.
+- `scout` y `planner` solo afirman rutas y símbolos que vieron en la sesión; lo
+  demás va marcado como sin confirmar o como pregunta.
+- `coder` no usa de memoria una API de una dependencia: confirma que existe en la
+  versión instalada antes de llamarla.
+- `reviewer` solo bloquea con una falla reproducible, y el planner no inventa reglas de negocio.
+- Lint, tipos, pruebas y build los dictamina una herramienta, no el modelo.
+
 ## Reglas de contexto
 - **Cada subagente arranca limpio.** No hereda la conversación: recibe la ruta del plan, la subtask y la base.
 - **Se pasan rutas, no contenido.** El plan vive en `.agentflow/plans/<id>.md` y el

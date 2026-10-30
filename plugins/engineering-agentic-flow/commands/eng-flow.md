@@ -17,8 +17,11 @@ y las salidas largas, y conserva solo decisiones y veredictos.
   del plan, subtask, base, y los hallazgos textuales si es una corrección).
 
 ## 0. Preparación
-- Si no existe `.agentflow/verify.sh`, créalo:
-  `mkdir -p .agentflow && cp "${CLAUDE_PLUGIN_ROOT}"/scripts/verify.sh "${CLAUDE_PLUGIN_ROOT}"/scripts/scan.sh "${CLAUDE_PLUGIN_ROOT}"/security/semgrep-flutter.yml .agentflow/`
+- Si no existe `.agentflow/verify.sh` o `.agentflow/graph.sh`, cópialos:
+  `mkdir -p .agentflow && cp -n "${CLAUDE_PLUGIN_ROOT}"/scripts/*.sh "${CLAUDE_PLUGIN_ROOT}"/security/semgrep-flutter.yml .agentflow/`
+- En los carriles estándar y profundo corre `.agentflow/graph.sh`: pone al día el
+  grafo de código si graphify está instalado (local, sin costo de tokens). Si dice
+  "no disponible", sigue igual.
 - Identifica la rama base (`main`, `master` o `develop`) y define `<id>`: el ID del
   ticket, o un slug corto de la descripción.
 

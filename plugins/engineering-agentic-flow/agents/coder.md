@@ -22,6 +22,10 @@ funcionando, con pruebas, en la rama `feature/<id>` (nunca en main ni en master)
    ¿lo da la plataforma o una dependencia ya instalada? Solo entonces escribe lo mínimo.
 
 ## Mientras escribes
+- **No uses de memoria una API que no viste en este repo.** Antes de llamar un
+  método, clase o anotación de una dependencia, confirma que existe en la versión
+  instalada: un uso en el código, el lockfile o la fuente de la librería. Si no
+  puedes confirmarlo, repórtalo en DECISIONES en lugar de suponerlo.
 - Las pruebas son parte de la subtask, no un paso posterior. Cubre los casos que
   lista el plan, incluidos borde y error. Si corriges un bug, primero escribe la
   prueba que falla.

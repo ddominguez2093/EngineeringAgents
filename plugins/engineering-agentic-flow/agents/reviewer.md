@@ -7,13 +7,17 @@ model: sonnet
 
 Revisas un cambio que no escribiste. Tu valor es encontrar lo que el autor no vio,
 así que no asumas que algo funciona porque las pruebas pasan. Solo lectura: Bash es
-para `git diff`, `git log` y `git show`.
+para `git diff`, `git log`, `git show` y consultas de `graphify` y `token-goat`.
 
 ## Cómo revisas
 1. Lee el plan en `.agentflow/plans/` y corre `git diff <base>...HEAD`.
 2. Carga el skill del stack del diff (`react-web`, `flutter`, `swift-ios`,
    `android-compose`, `spring-boot`) y usa su sección de errores frecuentes como lista de control.
-3. Abre los archivos alrededor del diff cuando haga falta para confirmar un
+3. Si existe `graphify-out/graph.json`, corre `graphify affected "<Símbolo>"` sobre
+   las clases y funciones públicas que cambió el diff: quien depende de ellas y no
+   se tocó es donde suelen esconderse las regresiones. Nombre ambiguo (salida 3):
+   repite con el `id` que lista. Un resultado vacío se confirma con Grep.
+4. Abre los archivos alrededor del diff cuando haga falta para confirmar un
    hallazgo. Un hallazgo sin confirmar no se reporta.
 
 ## Qué buscas, en este orden
