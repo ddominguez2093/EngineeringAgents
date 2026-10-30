@@ -18,7 +18,9 @@ mapa de un scout. Lee `.agentflow/context.md` si existe y el `CLAUDE.md` del pro
    de error, qué pasa con datos existentes. No los inventes. Si un hueco bloquea el
    diseño, va a PREGUNTAS y el plan queda `LISTO: no`.
 3. **Ubica el código** que se toca y cómo se resuelve hoy algo parecido. Lee lo
-   necesario para no planear a ciegas; no leas el repo entero.
+   necesario para no planear a ciegas; no leas el repo entero. Si existe
+   `graphify-out/graph.json`, corre `graphify affected "<Símbolo>"` sobre lo que vas
+   a cambiar y lista en la subtask lo que dependa de ello.
 4. **Decide la solución más adecuada a este proyecto**, no la más elegante: respeta
    su arquitectura y patrones. En riesgo alto, anota la alternativa descartada y por qué.
 5. **Parte en subtasks** que se puedan implementar y verificar de forma independiente,

@@ -18,8 +18,9 @@ En cada repo donde lo uses, una sola vez:
 /eng-context
 ```
 
-Instala `.agentflow/verify.sh` y `.agentflow/scan.sh` y escribe `.agentflow/context.md`
-(stacks, comandos, arquitectura y convenciones, máximo 120 líneas).
+Instala los scripts en `.agentflow/`, construye el grafo de código (si tienes
+graphify) y escribe `.agentflow/context.md` (stacks, comandos, arquitectura y
+convenciones, máximo 120 líneas).
 
 ## Uso
 
@@ -55,9 +56,35 @@ La sesión principal orquesta: corre `/eng-flow` con sonnet (`/model sonnet`). O
 la sesión principal no mejora el resultado y encarece cada etapa.
 
 ## Requisitos
-- `jq`, `git` y `gh` autenticado.
+- `jq`, `git`, `python3` y `gh` autenticado.
+- Opcional: `graphify` (ver abajo).
 - Para tickets de Jira: el MCP de Atlassian que trae el plugin (pide OAuth la primera vez).
 - Escáneres: `brew install gitleaks semgrep trivy`. Si falta alguno, el flujo lo reporta como incompleto; no lo da por limpio.
+
+## Grafo de código (graphify, opcional)
+
+Con [graphify](https://github.com/Graphify-Labs/graphify) instalado, cada repo tiene un
+grafo de clases, funciones y sus relaciones, extraído del AST en local: sin LLM y
+sin costo de tokens. Los agentes lo consultan antes de abrir archivos:
+
+- `scout` responde dónde vive algo y quién lo llama con `graphify query`, `explain` y `path`.
+- `planner` y `reviewer` usan `graphify affected` para ver qué depende de lo que cambia.
+
+```
+uv tool install graphifyy
+```
+
+- `.agentflow/graph.sh` construye `graphify-out/graph.json` o lo pone al día; `/eng-flow`
+  lo corre antes de cada tarea. Queda fuera de git (en `.git/info/exclude`).
+- `/eng-context` además agrega el repo al grafo global (`~/.graphify/global-graph.json`),
+  para consultar entre repos: `graphify query "…" --graph ~/.graphify/global-graph.json`.
+- No hace falta `graphify install` ni `graphify claude install`: el plugin llama al CLI
+  directamente. El hook de graphify interrumpiría cada `Read` y `Grep` de la sesión.
+- Sin graphify todo funciona igual, con Grep y Glob.
+
+En las pruebas, Java, TypeScript, React y Swift se extraen completos. En Kotlin y Dart
+la extracción es parcial (Dart solo clases; un archivo Kotlin válido salió con aviso
+de error de sintaxis), así que ahí el grafo orienta pero no reemplaza a Grep.
 
 ## Ajustar la verificación
 `verify.sh` detecta el proyecto de los archivos tocados y corre sus comandos. Cuando
