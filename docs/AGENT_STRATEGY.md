@@ -46,6 +46,12 @@ Si además está token-goat, se reparten papeles: token-goat lee fragmentos
 (`read archivo::Símbolo`, `outline`) y graphify responde relaciones. Dos sistemas
 sugiriendo lo mismo compiten y el agente termina ignorando a ambos.
 
+El grafo incluye la documentación (ADR, `docs/`, `CLAUDE.md`) enlazada al código y
+comunidades nombradas por tema, así que una regla o una decisión se encuentra con
+una consulta en lugar de releer documentos. Esa parte pasa por un LLM una sola vez
+por documento, por defecto con el Claude Code del usuario y Haiku; el código se
+extrae del AST sin costo, y un cambio solo de código no llama al LLM.
+
 graphify es obligatorio: sin grafo el flujo se detiene, porque un agente sin mapa
 de dependencias planea y revisa a ciegas. token-goat es opcional; sin él se lee con
 Read acotado. Los dos orientan; el código se confirma leyendo el fragmento exacto.

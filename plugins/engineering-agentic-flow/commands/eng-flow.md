@@ -17,10 +17,10 @@ y las salidas largas, y conserva solo decisiones y veredictos.
   del plan, subtask, base, y los hallazgos textuales si es una corrección).
 
 ## 0. Preparación
-- Si no existe `.agentflow/verify.sh` o `.agentflow/graph.sh`, cópialos:
-  `mkdir -p .agentflow && cp -n "${CLAUDE_PLUGIN_ROOT}"/scripts/*.sh "${CLAUDE_PLUGIN_ROOT}"/security/semgrep-flutter.yml .agentflow/`
-- Corre `.agentflow/graph.sh` en todos los carriles: pone al día el grafo de código
-  (local, sin costo de tokens; solo reextrae lo que cambió). **Es obligatorio:** si
+- Copia los scripts del plugin, siempre (así se actualizan con el plugin; `.agentflow/verify.conf` no se toca):
+  `mkdir -p .agentflow && cp "${CLAUDE_PLUGIN_ROOT}"/scripts/*.sh "${CLAUDE_PLUGIN_ROOT}"/security/semgrep-flutter.yml .agentflow/`
+- Corre `.agentflow/graph.sh` en todos los carriles, con timeout de 600000 ms (la primera construcción en modo completo puede tardar varios minutos; si se corta, vuelve a correrlo: retoma desde la caché). Pone al día
+  el grafo de código y documentación; solo reprocesa lo que cambió. **Es obligatorio:** si
   termina con error, detente y muestra su salida. No sigas sin grafo.
 - Identifica la rama base (`main`, `master` o `develop`) y define `<id>`: el ID del
   ticket, o un slug corto de la descripción.

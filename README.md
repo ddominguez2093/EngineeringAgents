@@ -10,7 +10,7 @@ Stacks: **React web · Flutter · iOS (Swift) · Android (Kotlin + Compose) · S
 Primero graphify, que es obligatorio:
 
 ```
-uv tool install graphifyy
+uv tool install "graphifyy[pdf,office]"
 ```
 
 Luego el plugin:
@@ -34,7 +34,7 @@ Los scripts y el hook son bash, así que en Windows corren en **Git Bash**:
    winget install astral-sh.uv
    winget install Python.Python.3.12
    winget install GitHub.cli
-   uv tool install graphifyy
+   uv tool install "graphifyy[pdf,office]"
    ```
    `jq` ya no es necesario: el hook usa Python si no encuentra `jq`.
 3. Instala el plugin igual que en Mac. Abre una terminal nueva para que el `PATH` se actualice.
@@ -132,12 +132,42 @@ prueba existente que graphify sí encontró. Y ningún resultado vacío cuenta c
 
 ### graphify (obligatorio)
 
-Con [graphify](https://github.com/Graphify-Labs/graphify), cada repo tiene un
-grafo de clases, funciones y sus relaciones, extraído del AST en local: sin LLM y
-sin costo de tokens. `scout`, `planner` y `reviewer` lo usan para ver qué depende de lo que cambia.
+Con [graphify](https://github.com/Graphify-Labs/graphify), cada repo tiene un grafo
+de conocimiento: clases, funciones y sus relaciones, más la documentación (ADR,
+`docs/`, `CLAUDE.md`, PDF, docx) enlazada al código, con las comunidades nombradas
+por tema. `scout`, `planner` y `reviewer` lo consultan antes de abrir archivos, así
+que no releen documentos para encontrar una regla o una decisión.
+
+**Dos modos:**
+
+| Modo | Qué incluye | Costo |
+|---|---|---|
+| **completo** (por defecto) | Código + documentación, comunidades con nombre | La documentación nueva o cambiada pasa por un LLM |
+| **código** | Solo código, comunidades sin nombre | Nada: AST local |
+
+El modo completo usa, en este orden:
+1. `GRAPHIFY_BACKEND` si lo defines (`none` fuerza el modo código).
+2. **Tu Claude Code** (`claude-cli`) si está instalado: usa tu suscripción, sin API
+   key, con Haiku (`GRAPHIFY_CLAUDE_CLI_MODEL` para cambiarlo).
+3. Una API key en el entorno. Cada backend con key necesita su extra de graphify,
+   por ejemplo `uv tool install "graphifyy[anthropic,pdf,office]"`.
+
+La configuración opcional va en `~/.config/graphify/env`, fuera del repo:
+
+```
+export GRAPHIFY_BACKEND=none            # ejemplo: solo código
+export GRAPHIFY_CLAUDE_CLI_MODEL=sonnet # ejemplo: mejor modelo para la extracción
+```
+
+La primera construcción en modo completo de un repo grande tarda varios minutos y
+consume uso de tu plan (una vez por documento). Las siguientes solo reprocesan lo que
+cambió; un cambio solo de código no llama al LLM. Imágenes y multimedia nunca se
+mandan (en apps móviles son cientos de assets). Para renombrar todas las comunidades:
+`/eng-graph --relabel`.
 
 - `.agentflow/graph.sh` construye `graphify-out/graph.json` o lo pone al día; `/eng-flow`
-  lo corre antes de cada tarea en todos los carriles. Si graphify no está instalado o
+  lo corre antes de cada tarea en todos los carriles. Los comandos vuelven a copiar
+  los scripts del plugin en cada corrida, así que se actualizan con él. Si graphify no está instalado o
   falla, el flujo se detiene. Queda fuera de git (en `.git/info/exclude`).
 - **Ver el grafo:** `/eng-graph` (o `.agentflow/graph.sh --html`) genera y abre
   `graphify-out/graph.html`, una red interactiva por comunidades con búsqueda de

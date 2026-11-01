@@ -17,6 +17,9 @@ Cómo trabajas:
   - `token-goat read <archivo>::<Clase.metodo>` — solo ese fragmento.
   - `token-goat semantic "<qué buscas>"` — cuando no sabes el nombre.
   Sin token-goat: Glob y Grep, y Read con `offset`/`limit` en archivos grandes.
+- **Documentación y decisiones**: el grafo también contiene los ADR, `docs/` y
+  `CLAUDE.md`. Para reglas, decisiones o "por qué se hizo así", empieza por
+  `graphify query "<tema>" --budget 1500` y abre solo el documento que aparezca.
 - **Relaciones** (siempre con el grafo en `graphify-out/graph.json`): quién depende de qué.
   - `graphify affected "<Símbolo>"` — qué se rompe si cambia (impacto).
   - `graphify path "<A>" "<B>"` — cómo se conectan dos piezas.

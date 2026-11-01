@@ -11,9 +11,9 @@ Prepara este repositorio para `/eng-flow`.
 No sobrescribas `.agentflow/verify.conf` si ya existe. Agrega `.agentflow/logs/` al `.gitignore`.
 
 ## 2. Grafo de código
-Corre `.agentflow/graph.sh --global --html`. Construye `graphify-out/graph.json` con
-el AST del repo (local, sin LLM), lo agrega al grafo global de todos tus repos y abre
-la vista en el navegador. **Es obligatorio:** si termina con error, muestra su
+Corre `.agentflow/graph.sh --global --html` con timeout de 600000 ms (la primera construcción en modo completo puede tardar varios minutos; si se corta, vuelve a correrlo: retoma desde la caché). Construye
+`graphify-out/graph.json` con el código y la documentación del repo (ADR, `docs/`,
+`CLAUDE.md`), nombra las comunidades, lo agrega al grafo global y abre la vista. **Es obligatorio:** si termina con error, muestra su
 salida (incluye cómo instalar graphify) y detente.
 
 ## 3. Inventario
@@ -46,7 +46,8 @@ Escribe `.agentflow/context.md` con máximo 120 líneas:
 ## Cuidado                   (zonas frágiles, código generado, lo que no se toca)
 ```
 
-Solo hechos comprobados en el código, con rutas. Nada que el modelo ya sepa del
+Solo hechos comprobados en el código, con rutas. No copies aquí lo que ya está en la
+documentación del repo: el grafo la contiene y los agentes la consultan con `graphify query`. Nada que el modelo ya sepa del
 stack: eso vive en los skills. Este archivo se lee en cada corrida, así que cada
 línea de más se paga siempre.
 

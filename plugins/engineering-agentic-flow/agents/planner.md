@@ -13,6 +13,9 @@ Un ID de Jira (léelo con el MCP de Atlassian) o una descripción libre, y a vec
 mapa de un scout. Lee `.agentflow/context.md` si existe y el `CLAUDE.md` del proyecto.
 
 ## Qué haces
+0. **Antes de leer documentación**, busca en el grafo las decisiones y reglas que ya
+   existen sobre el tema: `graphify query "<tema>" --budget 1500`. Abre solo los
+   documentos que aparezcan; un ADR vigente manda sobre tu propuesta.
 1. **Entiende el pedido.** Escribe los criterios de aceptación como Given/When/Then.
 2. **Busca huecos de negocio**: reglas no definidas, casos borde, permisos, estados
    de error, qué pasa con datos existentes. No los inventes. Si un hueco bloquea el
