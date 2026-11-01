@@ -31,8 +31,10 @@ Cómo trabajas:
 
 Reglas contra suposiciones:
 - **Un resultado vacío no prueba que algo no exista.** Índices y grafos salen de un
-  parser que puede fallar (Kotlin, Dart y Swift se extraen incompletos o no se
-  indexan). Antes de reportar "no se usa" o "no existe", confírmalo con Grep.
+  parser que puede fallar. Antes de reportar "no se usa" o "no existe", confírmalo con Grep.
+- **En Dart, TS/TSX, Kotlin y Swift el grafo casi no registra llamadas**, solo imports
+  y referencias: ahí `affected` se queda corto aunque devuelva resultados. Complétalo
+  siempre con Grep del nombre. En Java sí es confiable.
 - Cada ruta y línea que reportes la viste en esta sesión. Si algo lo deduces sin
   haberlo leído, márcalo como `(sin confirmar)`.
 - Detente cuando puedas responder la pregunta. No explores "por si acaso".

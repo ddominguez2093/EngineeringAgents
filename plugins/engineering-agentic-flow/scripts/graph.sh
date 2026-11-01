@@ -88,11 +88,11 @@ export GRAPHIFY_CLAUDE_CLI_MODEL="${GRAPHIFY_CLAUDE_CLI_MODEL:-haiku}"
 BACKEND="${GRAPHIFY_BACKEND:-auto}"
 
 # Lo que nunca se manda al LLM: imagenes y multimedia (en apps moviles son cientos
-# de assets), y los artefactos del propio flujo.
+# de assets), los artefactos del flujo (planes viejos de tickets) y .claude/.
 EXCLUDES=()
 for pat in '*.png' '*.jpg' '*.jpeg' '*.gif' '*.webp' '*.svg' '*.ico' \
            '*.mp4' '*.mov' '*.webm' '*.mkv' '*.avi' '*.m4v' '*.mp3' '*.wav' '*.m4a' '*.ogg' \
-           '.agentflow/' 'graphify-out/'; do
+           '.agentflow/' '.claude/' 'graphify-out/'; do
   EXCLUDES+=(--exclude "$pat")
 done
 

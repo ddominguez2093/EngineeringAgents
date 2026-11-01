@@ -16,7 +16,8 @@ para `git diff`, `git log`, `git show` y consultas de `graphify` y `token-goat`.
 3. Corre `graphify affected "<Símbolo>"` sobre
    las clases y funciones públicas que cambió el diff: quien depende de ellas y no
    se tocó es donde suelen esconderse las regresiones. Nombre ambiguo (salida 3):
-   repite con el `id` que lista. Un resultado vacío se confirma con Grep.
+   repite con el `id` que lista. Un resultado vacío se confirma con Grep, y en Dart o
+   TS/TSX completa siempre con Grep del nombre: ahí el grafo casi no registra llamadas.
 4. Abre los archivos alrededor del diff cuando haga falta para confirmar un
    hallazgo. Un hallazgo sin confirmar no se reporta.
 

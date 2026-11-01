@@ -23,7 +23,7 @@ mapa de un scout. Lee `.agentflow/context.md` si existe y el `CLAUDE.md` del pro
 3. **Ubica el código** que se toca y cómo se resuelve hoy algo parecido. Lee lo
    necesario para no planear a ciegas; no leas el repo entero. Corre `graphify affected "<Símbolo>"` sobre lo que vas
    a cambiar y lista en la subtask lo que dependa de ello (un resultado vacío se
-   confirma con Grep). Para leer fragmentos usa `token-goat read <archivo>::<Símbolo>`
+   confirma con Grep; en Dart o TS/TSX completa siempre con Grep). Para leer fragmentos usa `token-goat read <archivo>::<Símbolo>`
    si está instalado.
    Todo lo que el plan afirme del código (rutas, clases, métodos, comandos) lo
    viste en esta sesión; lo que no pudiste confirmar va a PREGUNTAS, no a la Decisión.
