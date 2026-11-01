@@ -6,11 +6,11 @@ código de aplicación ni build; el producto son los prompts, los skills y dos s
 ## Estructura
 - `agents/` — seis subagentes. El campo `model` de cada uno es su modelo por defecto;
   `/eng-flow` lo sube a opus en el carril profundo.
-- `commands/` — `/eng-flow` (orquestación) y `/eng-context` (preparar un repo).
+- `commands/` — `/eng-flow` (orquestación), `/eng-context` (preparar un repo) y `/eng-graph` (ver el grafo).
 - `skills/` — un skill por stack (`react-web`, `flutter`, `swift-ios`,
   `android-compose`, `spring-boot`) y `ponytail`.
 - `scripts/verify.sh`, `scripts/scan.sh` — verificación y escáneres deterministas.
-- `scripts/graph.sh` — grafo de código con graphify (opcional). Cómo consultar el grafo y token-goat vive solo en `agents/scout.md`.
+- `scripts/graph.sh` — grafo de código con graphify (obligatorio; el flujo se detiene sin él). Cómo consultar el grafo y token-goat vive solo en `agents/scout.md`.
 - `hooks/security-check.sh` — guardrail PreToolUse.
 
 ## Reglas al editar

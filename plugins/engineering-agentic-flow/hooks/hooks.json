@@ -2,20 +2,11 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": "Bash|Write|Edit|Read",
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/security-check.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Write|Edit|Read",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/security-check.sh"
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/security-check.sh\""
           }
         ]
       }

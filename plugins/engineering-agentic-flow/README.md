@@ -5,7 +5,7 @@ Plugin de Claude Code. Instalación, uso y carriles: ver el [README del repo](..
 | Carpeta | Contenido |
 |---|---|
 | `agents/` | `scout`, `planner`, `coder`, `verifier`, `reviewer`, `guardian` |
-| `commands/` | `/eng-flow`, `/eng-context` |
+| `commands/` | `/eng-flow`, `/eng-context`, `/eng-graph` |
 | `skills/` | `react-web`, `flutter`, `swift-ios`, `android-compose`, `spring-boot`, `ponytail` |
 | `scripts/` | `verify.sh` (lint, pruebas, build), `scan.sh` (gitleaks, semgrep, trivy) y `graph.sh` (grafo de código con graphify) |
 | `security/` | Reglas Semgrep para Dart/Flutter |

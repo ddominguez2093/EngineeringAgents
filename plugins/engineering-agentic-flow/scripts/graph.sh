@@ -1,27 +1,43 @@
 #!/usr/bin/env bash
 #
 # Construye o actualiza el grafo de codigo del repo con graphify (solo AST local:
-# sin LLM, sin costo de tokens). Opcional: si graphify no esta instalado, lo dice
-# y termina sin error para que el flujo siga con Grep/Glob.
+# sin LLM, sin costo de tokens). El grafo es OBLIGATORIO para el flujo: si graphify
+# no esta instalado o falla, termina con error y el flujo se detiene.
 #
-#   graph.sh [--global]
+# Salida: 0 grafo listo · 1 fallo al generar · 4 graphify no instalado
+#
+#   graph.sh [--global] [--html]
 #
 #   --global  agrega o actualiza este repo en el grafo global (~/.graphify/global-graph.json)
 #             para consultar entre repos (por ejemplo, la app web y su API).
+#   --html    genera las vistas para el navegador: graph.html (red interactiva) y
+#             GRAPH_TREE.html (arbol por carpetas), y las abre si hay un navegador.
 #
 set -uo pipefail
 
-GLOBAL=0
+GLOBAL=0; HTML=0
 for a in "$@"; do
   case "$a" in
     --global) GLOBAL=1 ;;
+    --html)   HTML=1 ;;
     *) echo "opcion desconocida: $a" >&2; exit 2 ;;
   esac
 done
 
 if ! command -v graphify >/dev/null 2>&1; then
-  echo "GRAFO: no disponible (instala: uv tool install graphifyy). Se usa Grep/Glob."
-  exit 0
+  echo "GRAFO: REQUERIDO y no instalado. Instala con: uv tool install graphifyy"
+  exit 4
+fi
+
+PY=""
+for p in python3 python py; do
+  # En Windows, "python3" puede ser el alias de la Microsoft Store que no ejecuta nada.
+  if command -v "$p" >/dev/null 2>&1 && "$p" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 8) else 1)' >/dev/null 2>&1; then
+    PY="$p"; break
+  fi
+done
+if [ -z "$PY" ]; then
+  echo "GRAFO: falta Python 3 (graphify tambien lo necesita)"; exit 4
 fi
 
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
@@ -45,7 +61,7 @@ stamp() {
 }
 
 node_count() {
-  python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1]))["nodes"]))' "$OUT" 2>/dev/null
+  "$PY" -c 'import json,sys; print(len(json.load(open(sys.argv[1]))["nodes"]))' "$OUT" 2>/dev/null
 }
 
 STAMP="$(stamp)"
@@ -63,9 +79,9 @@ fi
 
 if [ "$STATUS" != 0 ] || [ -z "$(node_count)" ]; then
   rm -f "$STAMP_FILE"
-  echo "GRAFO: fallo al generar (log: ${LOG#"$ROOT"/}). Se usa Grep/Glob."
+  echo "GRAFO: fallo al generar (log: ${LOG#"$ROOT"/})"
   tail -n 15 "$LOG" | sed 's/^/    | /'
-  exit 0
+  exit 1
 fi
 
 echo "$STAMP" > "$STAMP_FILE"
@@ -79,5 +95,24 @@ if [ "$GLOBAL" = 1 ]; then
     echo "GLOBAL: '$TAG' en $(graphify global path 2>/dev/null | sed 's/^Global graph: //')"
   else
     echo "GLOBAL: fallo al agregar '$TAG' (log: ${LOG#"$ROOT"/})"
+  fi
+fi
+
+if [ "$HTML" = 1 ]; then
+  # cluster-only refresca las comunidades tras un update (--no-label: sin LLM).
+  if graphify cluster-only . --no-label --no-viz >>"$LOG" 2>&1 \
+     && graphify export html --graph "$OUT" >>"$LOG" 2>&1 \
+     && graphify tree --graph "$OUT" --output graphify-out/GRAPH_TREE.html --label "$(basename "$ROOT")" >>"$LOG" 2>&1; then
+    echo "VISTA: $ROOT/graphify-out/graph.html (red) · $ROOT/graphify-out/GRAPH_TREE.html (arbol)"
+    case "$(uname -s)" in
+      Darwin) open graphify-out/graph.html graphify-out/GRAPH_TREE.html ;;
+      MINGW*|MSYS*|CYGWIN*) cmd.exe //c start "" "graphify-out\\graph.html" >/dev/null 2>&1
+                            cmd.exe //c start "" "graphify-out\\GRAPH_TREE.html" >/dev/null 2>&1 ;;
+      *) false ;;
+    esac || if command -v xdg-open >/dev/null 2>&1 && [ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]; then
+      xdg-open graphify-out/graph.html >/dev/null 2>&1 &
+    fi
+  else
+    echo "VISTA: fallo al generar (log: ${LOG#"$ROOT"/})"
   fi
 fi

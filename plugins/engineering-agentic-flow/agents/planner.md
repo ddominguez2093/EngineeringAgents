@@ -18,8 +18,7 @@ mapa de un scout. Lee `.agentflow/context.md` si existe y el `CLAUDE.md` del pro
    de error, qué pasa con datos existentes. No los inventes. Si un hueco bloquea el
    diseño, va a PREGUNTAS y el plan queda `LISTO: no`.
 3. **Ubica el código** que se toca y cómo se resuelve hoy algo parecido. Lee lo
-   necesario para no planear a ciegas; no leas el repo entero. Si existe
-   `graphify-out/graph.json`, corre `graphify affected "<Símbolo>"` sobre lo que vas
+   necesario para no planear a ciegas; no leas el repo entero. Corre `graphify affected "<Símbolo>"` sobre lo que vas
    a cambiar y lista en la subtask lo que dependa de ello (un resultado vacío se
    confirma con Grep). Para leer fragmentos usa `token-goat read <archivo>::<Símbolo>`
    si está instalado.
