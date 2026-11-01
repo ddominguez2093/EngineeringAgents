@@ -29,6 +29,17 @@ if ! command -v graphify >/dev/null 2>&1; then
   exit 4
 fi
 
+PY=""
+for p in python3 python py; do
+  # En Windows, "python3" puede ser el alias de la Microsoft Store que no ejecuta nada.
+  if command -v "$p" >/dev/null 2>&1 && "$p" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 8) else 1)' >/dev/null 2>&1; then
+    PY="$p"; break
+  fi
+done
+if [ -z "$PY" ]; then
+  echo "GRAFO: falta Python 3 (graphify tambien lo necesita)"; exit 4
+fi
+
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$ROOT" || exit 2
 OUT="graphify-out/graph.json"
@@ -50,7 +61,7 @@ stamp() {
 }
 
 node_count() {
-  python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1]))["nodes"]))' "$OUT" 2>/dev/null
+  "$PY" -c 'import json,sys; print(len(json.load(open(sys.argv[1]))["nodes"]))' "$OUT" 2>/dev/null
 }
 
 STAMP="$(stamp)"
@@ -93,8 +104,12 @@ if [ "$HTML" = 1 ]; then
      && graphify export html --graph "$OUT" >>"$LOG" 2>&1 \
      && graphify tree --graph "$OUT" --output graphify-out/GRAPH_TREE.html --label "$(basename "$ROOT")" >>"$LOG" 2>&1; then
     echo "VISTA: $ROOT/graphify-out/graph.html (red) · $ROOT/graphify-out/GRAPH_TREE.html (arbol)"
-    if [ "$(uname)" = "Darwin" ]; then open graphify-out/graph.html graphify-out/GRAPH_TREE.html
-    elif command -v xdg-open >/dev/null 2>&1 && [ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]; then
+    case "$(uname -s)" in
+      Darwin) open graphify-out/graph.html graphify-out/GRAPH_TREE.html ;;
+      MINGW*|MSYS*|CYGWIN*) cmd.exe //c start "" "graphify-out\\graph.html" >/dev/null 2>&1
+                            cmd.exe //c start "" "graphify-out\\GRAPH_TREE.html" >/dev/null 2>&1 ;;
+      *) false ;;
+    esac || if command -v xdg-open >/dev/null 2>&1 && [ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]; then
       xdg-open graphify-out/graph.html >/dev/null 2>&1 &
     fi
   else

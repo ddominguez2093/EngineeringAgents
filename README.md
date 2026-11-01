@@ -20,6 +20,32 @@ Luego el plugin:
 /plugin install engineering-agentic-flow@bitstream-agents
 ```
 
+### Windows
+Los scripts y el hook son bash, así que en Windows corren en **Git Bash**:
+
+1. Instala Git for Windows (trae Git Bash). Claude Code lo usa para su herramienta
+   Bash; sin él usa PowerShell y los scripts del plugin no corren.
+   ```powershell
+   winget install Git.Git
+   winget install Anthropic.ClaudeCode
+   ```
+2. Instala uv, graphify, `gh` y Python 3 (graphify lo necesita):
+   ```powershell
+   winget install astral-sh.uv
+   winget install Python.Python.3.12
+   winget install GitHub.cli
+   uv tool install graphifyy
+   ```
+   `jq` ya no es necesario: el hook usa Python si no encuentra `jq`.
+3. Instala el plugin igual que en Mac. Abre una terminal nueva para que el `PATH` se actualice.
+
+Si Claude Code no encuentra Git Bash, define `CLAUDE_CODE_GIT_BASH_PATH` en
+`settings.json` (por ejemplo `C:\\Program Files\\Git\\bin\\bash.exe`).
+
+**WSL 2** es la alternativa más compatible (es Linux), pero el código debe vivir dentro
+de WSL y el emulador de Android y Flutter se manejan con más fricción. iOS requiere
+Mac en cualquier caso.
+
 ### Actualizar
 Cada versión cambia `version` en `plugin.json`; sin ese cambio, Claude Code no baja
 los commits nuevos.
@@ -86,7 +112,7 @@ La sesión principal orquesta: corre `/eng-flow` con sonnet (`/model sonnet`). O
 la sesión principal no mejora el resultado y encarece cada etapa.
 
 ## Requisitos
-- `jq`, `git`, `python3` y `gh` autenticado.
+- `git`, Python 3 y `gh` autenticado. En Windows, Git Bash (ver arriba).
 - `graphify` (obligatorio, ver abajo). Opcional: `token-goat`.
 - Para tickets de Jira: el MCP de Atlassian que trae el plugin (pide OAuth la primera vez).
 - Escáneres: `brew install gitleaks semgrep trivy`. Si falta alguno, el flujo lo reporta como incompleto; no lo da por limpio.
