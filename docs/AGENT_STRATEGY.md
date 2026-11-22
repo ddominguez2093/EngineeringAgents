@@ -87,6 +87,23 @@ Read acotado. Los dos orientan; el código se confirma leyendo el fragmento exac
 | Revisión → coder | 2 | Se detiene y reporta los bloqueantes |
 | Seguridad → coder | 2 | Se detiene; seguridad nunca se aprueba por agotamiento |
 
+## Relevo entre modelos y runtimes
+El flujo debe poder cortarse en cualquier punto (límite de uso) y continuar con otro
+modelo, incluso en Antigravity. Eso exige que nada importante viva solo en la memoria
+del orquestador:
+- **Estado en un archivo plano** (`.agentflow/state/<id>.state`, `clave=valor`): carril,
+  etapa, subtasks hechas, contadores de loops, gate de diseño y último veredicto. Lo
+  escribe `state.sh`, no el modelo a mano. Más un `.log` que registra qué modelo corrió cada etapa.
+- **Git es la verdad.** El `coder` hace commits `wip(...)` por bloque coherente; `/eng-resume`
+  compara el estado con los commits y gana git.
+- **Una sola fuente.** Los agentes, comandos y skills se escriben una vez; `sync-antigravity.sh`
+  los traduce (herramientas, `model`→`flash|pro`, `$ARGUMENTS`) en vez de mantener una copia.
+- **Un modelo menor no aprueba lo que no puede juzgar**: en el carril profundo, diseño,
+  revisión o seguridad hechos por un modelo de menor nivel se marcan para revisión humana.
+- El hook de seguridad y los hooks del proyecto viajan: `security-check.sh` entiende ambos
+  formatos y `claude-hook-adapter.sh` ejecuta hooks de Claude tal cual en Antigravity.
+Ver `docs/ANTIGRAVITY.md`.
+
 ## Guardrails del propio sistema
 - Mínimo privilegio: `scout`, `reviewer` y `guardian` no editan; `verifier` solo ejecuta.
 - El hook `PreToolUse` bloquea `rm` recursivo sobre la raíz o el home, descarga y

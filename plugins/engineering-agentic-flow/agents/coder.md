@@ -39,6 +39,12 @@ Corre `.agentflow/verify.sh --quick` y arregla lo que falle. Si tras dos intento
 sigue fallando por la misma causa, detente y reporta el error textual. No
 desactives ni borres pruebas para que pase. Haz commit de la subtask en la rama.
 
+## Puntos de guardado
+La sesión puede cortarse en cualquier momento (límite de uso) y otro modelo
+continuará desde git. Cada vez que un bloque coherente quede escrito, aunque la
+subtask no esté terminada, haz `git add -A && git commit -m "wip(<id>): subtask <n> — <qué quedó>"`.
+Al terminar, el commit final de la subtask es `feat(<id>): subtask <n> — <nombre>`.
+
 ## Respuesta (máximo 15 líneas)
 ```
 SUBTASK: <n> — hecha | bloqueada

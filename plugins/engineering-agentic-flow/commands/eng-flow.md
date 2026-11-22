@@ -38,6 +38,20 @@ lee el ticket o la descripción y elige:
 En la duda entre dos carriles, elige el más alto. Di en una línea qué carril
 elegiste y por qué, y continúa sin pedir permiso.
 
+Si ya existe `.agentflow/state/<id>.state`, esta tarea ya empezó: no la reinicies;
+sigue el procedimiento de `/eng-resume`. Si no, crea el estado:
+`.agentflow/state.sh init <id> <carril> <base>`.
+
+## Estado (relevo entre sesiones y modelos)
+Puede cortarse la sesión en cualquier punto (límite de uso) y otro modelo, incluso de
+otro runtime, continuará solo con lo que haya en disco. Por eso, **antes de invocar
+cada etapa y al terminar**, deja el estado al día:
+- `.agentflow/state.sh set <id> stage=<plan|implement|verify|review|scan|security|pr> subtasks_done=<1,2> loops_verify=<n> loops_review=<n> loops_security=<n> gate_design=<pendiente|aprobado> last_verdict=<texto corto>`
+- `.agentflow/state.sh log <id> <etapa> <resultado> <runtime>/<modelo>`, con el modelo
+  que de verdad corrió la etapa (así se ve qué hizo cada modelo).
+- Los contadores de loops viven en el estado, no en tu memoria: léelos con
+  `state.sh get` antes de decidir si queda una vuelta.
+
 ## Carril rápido
 1. Crea la rama `feature/<id>`. Haz el cambio tú mismo, cargando el skill del stack
    si vas a escribir lógica. Incluye o ajusta la prueba que lo cubre.
@@ -88,3 +102,11 @@ seguridad, los hallazgos menores pendientes y lo que quedó fuera de alcance.
 Detente y reporta, sin insistir, cuando: el plan no está listo, un loop agotó sus
 vueltas, el guardian sigue en `falla`, o falta una herramienta que impide
 verificar, o `graph.sh` falla. Di exactamente qué falló y qué necesitas para continuar.
+Antes de detenerte deja `state.sh set <id> stage=<etapa> note=<qué falta>` y, si hay
+cambios sin commit, un commit `wip(<id>): ...` en `feature/<id>`.
+
+Si te quedas sin uso o el sistema avisa que el límite está cerca, haz lo mismo y
+termina con una línea: «Estado guardado; continúa con /eng-resume <id>».
+
+## Cierre
+Al terminar el paso final: `.agentflow/state.sh set <id> stage=done`.

@@ -55,7 +55,9 @@ claude plugin marketplace update bitstream-agents
 claude plugin update engineering-agentic-flow@bitstream-agents
 ```
 
-Luego abre una sesión nueva o corre `/reload-plugins`. Revisa la versión con `claude plugin list`.
+Luego abre una sesión nueva o corre `/reload-plugins`. Revisa la versión con `claude plugin list`,
+o con `/eng-version`, que además compara el commit instalado contra GitHub y avisa si los
+scripts de `.agentflow/` de tu repo quedaron viejos (se refrescan con `/eng-context`).
 
 Para probar una rama sin publicarla, agrega tu copia local como marketplace (se lee
 en sitio; cada cambio aplica con `/reload-plugins`):
@@ -84,7 +86,14 @@ convenciones, máximo 120 líneas).
 /eng-flow corregir el salto de línea en el título de la tarjeta de pedido
 /eng-flow --profundo PROJ-456
 /eng-graph        # actualiza el grafo y lo abre en el navegador
+/eng-resume       # retoma la última corrida cortada (límite de uso, otro modelo)
+/eng-version      # ¿es la última versión de GitHub?
 ```
+
+## Antigravity y relevo entre modelos
+Cada etapa deja su estado en `.agentflow/state/` y git, así que si se acaba tu uso de Claude
+puedes seguir en Antigravity (o en otro modelo) con `/eng-resume`. Instalación y límites:
+[`docs/ANTIGRAVITY.md`](docs/ANTIGRAVITY.md).
 
 ## Tres carriles
 
