@@ -24,6 +24,14 @@ fi
 
 INPUT="$(cat)"
 
+# Depuracion: con .agentflow/hook-debug (o AGENTFLOW_HOOK_DEBUG=1) guarda cada evento recibido.
+# Rutas absolutas desde la ubicacion del script: no dependen del directorio de trabajo.
+AFDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." 2>/dev/null && pwd)"
+if [ "${AGENTFLOW_HOOK_DEBUG:-}" = 1 ] || [ -f "$AFDIR/hook-debug" ]; then
+  mkdir -p "$AFDIR/logs" 2>/dev/null \
+    && printf '{"hook":"security-check","event":%s}\n' "$INPUT" >> "$AFDIR/logs/hook-payloads.log" 2>/dev/null || true
+fi
+
 # field <ruta.json> [alternativa]: primer valor no vacio de las rutas dadas.
 field() {
   if command -v jq >/dev/null 2>&1; then
@@ -88,7 +96,7 @@ TOOL="$(field tool_name)"
 if [ "$AG" = 1 ]; then
   case "$(field toolCall.name)" in
     run_command) TOOL=Bash ;;
-    view_file|write_to_file|replace_file_content|create_file|edit_file) TOOL=Write ;;
+    *read*|*view*|*write*|*create*|*edit*|*replace*) TOOL=Write ;;
     *) TOOL="" ;;
   esac
 fi

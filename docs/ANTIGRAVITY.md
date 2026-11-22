@@ -40,11 +40,14 @@ Para seguir en otra máquina: haz push de la rama `feature/<id>` y copia `.agent
 - **Modelo por invocación**: en Claude, el carril profundo sube a `opus` al invocar. En Antigravity el modelo lo fija cada agente (`pro` para todos salvo scout y verifier).
 - **MCP de Atlassian**: se configura en Antigravity.
 
+## Verificado en la App de Antigravity
+- Los hooks de `.agents/hooks.json` **sí se ejecutan** (confirmado para `run_command`). Se usan rutas **absolutas**: la ruta relativa no es fiable (el cwd del hook no está documentado).
+- El evento trae `toolCall.name/args`, `cwd`, `workspacePaths`, `conversationId`, `modelName`, etc.
+- Las herramientas de archivo de la App se llaman `read_file`, `write_file`, `edit_file` (la documentación habla de `view_file`, `write_to_file`, `replace_file_content`). El matcher y los scripts cubren ambas familias y clasifican por nombre.
+- Depuración: crea `.agentflow/hook-debug` (o `AGENTFLOW_HOOK_DEBUG=1`) y mira `.agentflow/logs/hook-payloads.log`.
+
 ## Sin verificar (pruébalo la primera vez)
-Estos puntos no están documentados por Antigravity al momento de escribir esto:
-- Que la ruta relativa `bash .agentflow/hooks/...` de `hooks.json` se resuelva desde la raíz del repo.
-- Los nombres de campo de ruta en el evento de cada herramienta de archivo. Con
-  `AGENTFLOW_HOOK_DEBUG=1`, `.agentflow/logs/hook-payloads.log` guarda el evento real.
+- Campo de ruta de `read_file`: verificado, es `Path` (con mayúscula). Falta confirmar el de `write_file`/`edit_file`.
 - Si `invoke_subagent` permite elegir modelo por invocación (hoy no se usa).
 - Que Antigravity ignore claves de skill que no conoce (p. ej. `disable-model-invocation`).
 

@@ -32,6 +32,9 @@ import json, os, re, shlex, shutil, stat, subprocess, sys
 from datetime import datetime, timezone
 
 plugin = os.path.abspath(sys.argv[1])
+# Ruta del plugin tal como la ve la maquina donde se usaran los skills (si el sync corre
+# en otro entorno, por ejemplo una VM): AGENTFLOW_PLUGIN_PATH.
+plugin_shown = os.environ.get("AGENTFLOW_PLUGIN_PATH") or plugin
 args = sys.argv[2:]
 dry = "--dry-run" in args
 paths = [a for a in args if not a.startswith("--")]
@@ -66,9 +69,8 @@ def copy_tree(src, dst):
     say("copia", dst + "/")
     if dry:
         return
-    if os.path.isdir(dst):
-        shutil.rmtree(dst)
-    shutil.copytree(src, dst, ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".DS_Store"))
+    # Se sobrescribe en sitio (sin borrar antes): funciona aunque la carpeta no permita borrar.
+    shutil.copytree(src, dst, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".DS_Store"))
 
 def split_fm(text):
     if text.startswith("---\n"):
@@ -188,7 +190,7 @@ for f in sorted(os.listdir(os.path.join(plugin, "commands"))):
     name = f[:-3]
     fm, body = split_fm(open(os.path.join(plugin, "commands", f), encoding="utf-8").read())
     desc = unquote(parse_fm(fm).get("description", name))
-    body = body.replace("${CLAUDE_PLUGIN_ROOT}", plugin).replace("$ARGUMENTS", "(lo que escribió la persona tras el comando)")
+    body = body.replace("${CLAUDE_PLUGIN_ROOT}", plugin_shown).replace("$ARGUMENTS", "(lo que escribió la persona tras el comando)")
     out = "---\nname: %s\ndescription: %s\n---\n\n%s%s" % (
         name, json.dumps(desc, ensure_ascii=False), CMD_NOTE.replace("{name}", name), body)
     write(os.path.join(skills_out, name, "SKILL.md"), out)
@@ -211,8 +213,11 @@ if os.path.isdir(rules_src):
         write(os.path.join(target, ".agents", "rules", f), "---\n" + head + "---\n\n" + body)
 
 # ----------------------------------------------------------------- hooks
-AG_TOOL = {"Bash": ["run_command"], "Read": ["view_file"], "Edit": ["replace_file_content"], "Write": ["write_to_file"]}
-ALL_TOOLS = ["run_command", "view_file", "write_to_file", "replace_file_content"]
+# La App usa read_file/write_file/edit_file; la documentacion, view_file/write_to_file/replace_file_content. Se cubren ambas.
+AG_TOOL = {"Bash": ["run_command"], "Read": ["view_file", "read_file"],
+           "Edit": ["replace_file_content", "multi_replace_file_content", "edit_file"],
+           "Write": ["write_to_file", "write_file", "create_file"]}
+ALL_TOOLS = [t for v in AG_TOOL.values() for t in v]
 
 def hook_entries(matcher, command, timeout=10):
     names = []
@@ -221,7 +226,8 @@ def hook_entries(matcher, command, timeout=10):
         names += AG_TOOL.get(part, [])
     if not matcher or matcher.strip() in ("*", ".*"):
         names = ALL_TOOLS
-    return [{"matcher": n, "hooks": [{"type": "command", "command": command, "timeout": timeout}]} for n in dict.fromkeys(names)]
+    # El matcher es una expresion regular: una sola entrada con todas las herramientas.
+    return [{"matcher": "|".join(dict.fromkeys(names)), "hooks": [{"type": "command", "command": command, "timeout": timeout}]}]
 
 hooks_path = os.path.join(target, ".agents", "hooks.json")
 try:
@@ -230,7 +236,10 @@ except Exception:
     hooks = {}
 for k in [k for k in hooks if k.startswith("agentflow-") or k.startswith("claude-")]:
     del hooks[k]
-hooks["agentflow-security"] = {"PreToolUse": hook_entries("*", "bash .agentflow/hooks/security-check.sh")}
+# Rutas absolutas: Antigravity no documenta desde que carpeta corre el comando de un hook.
+# AGENTFLOW_TARGET_PATH = ruta del repo tal como la ve tu maquina (si el sync corre en otro entorno).
+hook_dir = (os.environ.get("AGENTFLOW_TARGET_PATH") or target).rstrip("/") + "/.agentflow/hooks"
+hooks["agentflow-security"] = {"PreToolUse": hook_entries("*", "bash " + shlex.quote(hook_dir + "/security-check.sh"))}
 skipped = []
 settings_path = os.path.join(target, ".claude", "settings.json")
 if os.path.isfile(settings_path):
@@ -247,7 +256,7 @@ if os.path.isfile(settings_path):
                 if h.get("type", "command") != "command":
                     continue
                 n += 1
-                cmd = "bash .agentflow/hooks/claude-hook-adapter.sh " + shlex.quote(h["command"])
+                cmd = "bash " + shlex.quote(hook_dir + "/claude-hook-adapter.sh") + " " + shlex.quote(h["command"])
                 hooks["claude-%d" % n] = {"PreToolUse": hook_entries(g.get("matcher", ""), cmd, h.get("timeout", 10))}
 write(hooks_path, json.dumps(hooks, indent=2, ensure_ascii=False) + "\n")
 
@@ -281,7 +290,7 @@ write(agents_md, new)
 # ------------------------------------------------------------- meta + git
 write(os.path.join(af, ".sync-meta"),
       "plugin_version=%s\nsource_commit=%s\nsynced_at=%s\nplugin_path=%s\n" % (
-          plugin_version, source_commit, datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), plugin))
+          plugin_version, source_commit, datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), plugin_shown))
 
 if not dry:
     try:

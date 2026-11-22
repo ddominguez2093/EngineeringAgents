@@ -11,7 +11,8 @@
 # cualquier otra cosa -> {"decision": "allow"}.
 #
 # Los nombres de los campos de ruta de cada herramienta de Antigravity no estan
-# documentados. Si un hook no ve el archivo, corre con AGENTFLOW_HOOK_DEBUG=1 y mira
+# documentados. Si un hook no ve el archivo (o para comprobar que se ejecuta), crea
+# .agentflow/hook-debug (o AGENTFLOW_HOOK_DEBUG=1) y mira
 # .agentflow/logs/hook-payloads.log para ver el evento real.
 #
 set -uo pipefail
@@ -30,7 +31,7 @@ if [ -z "$PY" ]; then
   echo '{"decision": "allow"}'; exit 0
 fi
 
-AF_INPUT="$(cat)" AF_CMD="$CMD" "$PY" -I - <<'EOF'
+AF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)" AF_INPUT="$(cat)" AF_CMD="$CMD" "$PY" -I - <<'EOF'
 import json, os, subprocess, sys
 
 def out(decision, reason=""):
@@ -50,21 +51,31 @@ name = tc.get("name", "")
 args = tc.get("args") or {}
 ws = (ev.get("workspacePaths") or [os.getcwd()])[0]
 
-if os.environ.get("AGENTFLOW_HOOK_DEBUG") == "1":
+afd = os.environ.get("AF_DIR") or os.path.join(ws, ".agentflow")
+if os.environ.get("AGENTFLOW_HOOK_DEBUG") == "1" or os.path.exists(os.path.join(afd, "hook-debug")):
     try:
-        os.makedirs(os.path.join(ws, ".agentflow", "logs"), exist_ok=True)
-        with open(os.path.join(ws, ".agentflow", "logs", "hook-payloads.log"), "a") as f:
-            f.write(json.dumps(ev) + "\n")
+        os.makedirs(os.path.join(afd, "logs"), exist_ok=True)
+        with open(os.path.join(afd, "logs", "hook-payloads.log"), "a") as f:
+            f.write(json.dumps({"hook": os.environ["AF_CMD"], "event": ev}) + "\n")
     except Exception:
         pass
 
-TOOLS = {
-    "run_command": "Bash",
-    "view_file": "Read",
-    "write_to_file": "Write", "create_file": "Write",
-    "replace_file_content": "Edit", "edit_file": "Edit",
-}
-if name not in TOOLS:
+def classify(n):
+    # La App y la documentacion de Antigravity usan nombres distintos para las mismas
+    # herramientas (read_file/view_file, edit_file/replace_file_content...): se clasifica por nombre.
+    n = n.lower()
+    if n == "run_command":
+        return "Bash"
+    if "edit" in n or "replace" in n:
+        return "Edit"
+    if "write" in n or "create" in n:
+        return "Write"
+    if "read" in n or "view" in n:
+        return "Read"
+    return None
+
+kind = classify(name)
+if kind is None:
     out("allow")
 
 def first_path(a):
@@ -77,13 +88,13 @@ def first_path(a):
             return v
     return ""
 
-if TOOLS[name] == "Bash":
+if kind == "Bash":
     tool_input = {"command": args.get("CommandLine") or args.get("command") or ""}
 else:
     p = first_path(args)
     tool_input = {"file_path": p, "path": p}
 
-payload = {"tool_name": TOOLS[name], "tool_input": tool_input, "cwd": ws, "hook_event_name": "PreToolUse"}
+payload = {"tool_name": kind, "tool_input": tool_input, "cwd": ws, "hook_event_name": "PreToolUse"}
 env = dict(os.environ, CLAUDE_PROJECT_DIR=ws)
 env.pop("AF_INPUT", None)
 
